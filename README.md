@@ -27,21 +27,28 @@ DestinationRule → Pods with Sidecar Proxy
 
 ### 1️⃣ Install Istio
 ```bash
+
 curl -L https://istio.io/downloadIstio | sh -
 cd istio-*
 export PATH=$PWD/bin:$PATH
 istioctl version
 
 2️⃣ Install Istio on Cluster
+
 istioctl install --set values.defaultRevision=default
 kubectl get pods -n istio-system
+
 3️⃣ Enable Sidecar Injection
+
 kubectl label namespace default istio-injection=enabled
 4️⃣ Deploy Sample Application
+
 kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
 kubectl get pods
 kubectl get services
+
 🔀 Traffic Management
+
 Destination Rule
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -75,8 +82,11 @@ spec:
     - destination:
         host: reviews
         subset: v3
+
       weight: 50
+
 🔐 Security (mTLS)
+
 Enable mTLS
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
@@ -86,7 +96,9 @@ spec:
   mtls:
     mode: STRICT
 kubectl apply -f peer-authentication.yaml
+
 📊 Observability
+
 Install Tools
 kubectl apply -f samples/addons/kiali.yaml
 kubectl apply -f samples/addons/prometheus.yaml
@@ -94,24 +106,34 @@ kubectl apply -f samples/addons/grafana.yaml
 Access Dashboards
 Kiali: kubectl port-forward svc/kiali -n istio-system 20001:20001
 Grafana: kubectl port-forward svc/grafana -n istio-system 3000:3000
+
 ⚡ Advanced Features
+
 Fault Injection (simulate delays and errors)
 Timeout and Retry (improve resilience)
+
 🛠️ Troubleshooting
+
 Pods not ready → Restart deployment
 Gateway not working → Check external IP
 mTLS issue → Verify PeerAuthentication
 Monitoring issue → Check add-ons
+
 🧪 Verification
+
 istioctl verify-install
 istioctl proxy-status
 istioctl analyze
+
 🧹 Cleanup
+
 kubectl delete -f samples/bookinfo/
 kubectl delete -f samples/addons/
 istioctl uninstall --purge
 kubectl delete namespace istio-system
+
 🎉 Key Learnings
+
 Service Mesh Architecture
 Secure communication with mTLS
 Traffic routing and load balancing
