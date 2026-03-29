@@ -1,77 +1,162 @@
-Zarur! Aik professional GitHub README wahi hota hai jo foran bataye ke aapne kya problem solve ki hai aur kaunsi technologies use ki hain.
+🚀 Project : Configuring and Using Service Mesh (Istio)
+📌 Overview
 
-Aap is template ko copy karke apni README.md file mein paste kar sakte hain. Maine isse "DevOps Portfolio" ke hisaab se design kiya hai.
+This lab demonstrates how to deploy and configure a service mesh using Istio on a Kubernetes cluster.
 
-🕸️ Istio Service Mesh: Traffic Orchestration & Security Lab
-Modern microservices architecture mein networking, security, aur observability ko handle karne ke liye Istio Service Mesh ka ek mukammal implementation. Is project mein Kubernetes par chalti hui services ko baghair code change kiye secure aur manage kiya gaya hai.
+You will learn how to manage microservices traffic, secure communication with mTLS, and monitor service behavior using modern cloud-native tools.
 
-🎯 Project Overview
-Is lab ka maqsad microservices ke darmiyan hone wali baatchit (East-West traffic) par mukammal control hasil karna hai.
+🎯 Objectives
 
-Key Technical Achievements:
-Advanced Traffic Management: Canary deployments aur weighted traffic splitting ka implementation.
+By completing this lab, you will:
 
-Zero-Trust Security: PeerAuthentication policies ke zariye STRICT mTLS enable karna.
+Deploy and configure Istio Service Mesh
+Understand service mesh architecture
+Configure traffic routing & load balancing
+Implement mTLS (Mutual TLS)
+Monitor services using observability tools
+Apply traffic policies (retries, circuit breakers, fault injection)
+🧠 Prerequisites
 
-Resilience Patterns: Circuit Breaking aur Outlier Detection ke zariye system ko crash hone se bachana.
+Before starting:
 
-Observability: Kiali, Prometheus, aur Grafana ke zariye real-time traffic visualization.
-
-🛠️ Tech Stack
-Platform: Kubernetes (K8s)
-
-Service Mesh: Istio v1.29.1
-
-Monitoring: Prometheus & Grafana
-
-Visualization: Kiali (Service Graph)
-
-Distributed Tracing: Jaeger
-
-Sample App: Bookinfo (Polyglot Microservices)
-
-🚀 Implementation Steps
-1. Mesh Infrastructure Setup
-Sab se pehle Istio control plane install kiya gaya aur default namespace mein Automatic Sidecar Injection enable ki gayi taake har pod ke saath Envoy proxy attach ho sake.
-
-Bash
-istioctl install --set profile=demo -y
+Basic understanding of Kubernetes (Pods, Services, Deployments)
+Familiarity with kubectl
+YAML configuration knowledge
+Microservices architecture basics
+Networking fundamentals (HTTP, TLS, Load Balancing)
+🏗️ Lab Environment
+Ubuntu 22.04 LTS
+Pre-configured Kubernetes Cluster
+Internet connectivity
+Full permissions enabled
+⚙️ Task 1: Deploy Istio
+📥 Install Istio
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-*
+export PATH=$PWD/bin:$PATH
+istioctl version
+🚀 Install Istio on Cluster
+istioctl install --set values.defaultRevision=default
+kubectl get pods -n istio-system
+🔄 Enable Sidecar Injection
 kubectl label namespace default istio-injection=enabled
-2. Traffic Control (L7 Routing)
-VirtualService aur DestinationRule ka istemal karte hue traffic ko control kiya gaya:
+kubectl get namespace -L istio-injection
+📦 Task 2: Deploy Sample Application
+📚 Deploy Bookinfo App
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+kubectl get pods
+kubectl get services
+🌐 Configure Gateway
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+kubectl get svc istio-ingressgateway -n istio-system
+🔀 Task 3: Traffic Management
+🎯 Destination Rule
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: reviews
+spec:
+  host: reviews
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+  - name: v3
+    labels:
+      version: v3
+kubectl apply -f destination-rule.yaml
+⚖️ Traffic Splitting
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 50
+    - destination:
+        host: reviews
+        subset: v3
+      weight: 50
+kubectl apply -f reviews-virtual-service.yaml
+🔐 Task 4: Enable mTLS Security
+🛡️ Peer Authentication
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+spec:
+  mtls:
+    mode: STRICT
+kubectl apply -f peer-authentication.yaml
+✅ Verify mTLS
+istioctl authn tls-check productpage.default.svc.cluster.local
+📊 Task 5: Observability
+📈 Install Monitoring Tools
+kubectl apply -f samples/addons/kiali.yaml
+kubectl apply -f samples/addons/prometheus.yaml
+kubectl apply -f samples/addons/grafana.yaml
+kubectl apply -f samples/addons/jaeger.yaml
+🌐 Access Dashboards
+🔍 Kiali
+kubectl port-forward -n istio-system svc/kiali 20001:20001
+📊 Grafana
+kubectl port-forward -n istio-system svc/grafana 3000:3000
+⚡ Task 6: Advanced Traffic Management
+💥 Fault Injection
+fault:
+  delay:
+    percentage:
+      value: 50
+    fixedDelay: 5s
+  abort:
+    percentage:
+      value: 10
+    httpStatus: 500
+⏱️ Timeout & Retry
+timeout: 3s
+retries:
+  attempts: 3
+  perTryTimeout: 1s
+🛠️ Troubleshooting
+Issue	Solution
+Pods not ready	Restart deployment
+Gateway not working	Check external IP
+mTLS failure	Verify PeerAuthentication
+Monitoring not working	Check add-ons
+🧪 Verification Commands
+istioctl verify-install
+istioctl proxy-status
+istioctl analyze
+🧹 Cleanup
+kubectl delete -f samples/bookinfo/
+kubectl delete -f samples/addons/
+istioctl uninstall --purge
+kubectl delete namespace istio-system
+🎉 Conclusion
 
-A/B Testing: "Jason" user ke liye version v2 activate kiya gaya.
+In this lab, you successfully:
 
-Traffic Splitting: Normal users ka traffic 50% v1 aur 50% v3 par divide kiya gaya.
+Deployed Istio Service Mesh
+Managed traffic routing and load balancing
+Secured services with mTLS
+Implemented observability and monitoring
+Applied resilience patterns (retries, circuit breakers)
+💡 Why This Matters
 
-3. Security & Policy Enforcement
-Cluster ko secure banane ke liye mTLS aur Authorization policies apply ki gayin:
+Service Mesh is critical for modern cloud-native applications:
 
-STRICT mTLS: Poore cluster mein encrypted communication lazmi qarar di gayi.
+🔐 Secure communication (mTLS)
+🔄 Intelligent traffic routing
+📊 Deep observability
+⚡ Resilience and fault tolerance
+👨‍💻 Author
 
-RBAC: Sirf authorized services ko hi ek doosre se baat karne ki ijazat di gayi.
-
-4. Reliability & Circuit Breaking
-High traffic situations ko handle karne ke liye connectionPool aur outlierDetection configure kiya gaya taake faulty pods ko mesh se bahar nikala ja sake.
-
-📊 Observability & Metrics
-Project ki monitoring ke liye niche diye gaye dashboards setup kiye gaye:
-
-Kiali: Microservices ka interactive map aur traffic flow dekhne ke liye.
-
-Grafana: Request per second (RPS), latency (P99), aur error rates monitor karne ke liye.
-
-📂 Project Structure
-Plaintext
-├── istio-1.29.1/               # Istio binaries and samples
-├── reviews-virtual-service.yaml # Traffic routing rules
-├── destination-rule.yaml        # Subsets and Load Balancing
-├── advanced-destination-rule.yaml # Circuit breaker & outlier detection
-├── peer-authentication.yaml     # mTLS settings
-└── authorization-policy.yaml    # Security access rules
-💡 Key Learnings
-Microservices mein communication ko "Abstract" karna kitna zaroori hai.
-
-Sidecar pattern ke zariye code-level security se chutkara hasil karna.
-
-Traffic observability se bottlenecks ko foran pehchan-na.
+Zohaib Ahmed
+DevOps Engineer | Kubernetes | Cloud | AI/ML
