@@ -1,36 +1,36 @@
 # 🚀 Configuring and Using Service Mesh (Istio)
-# 🔧 Hands-on Kubernetes Lab for Service Mesh, mTLS, and Traffic Management
+ 🔧 Hands-on Kubernetes Lab for Service Mesh, mTLS, and Traffic Management
 
 # 📌 Overview
-# This project demonstrates how to deploy and configure Istio service mesh on a Kubernetes cluster
-# You will learn microservices traffic management, mTLS security, and observability tools
+ This project demonstrates how to deploy and configure Istio service mesh on a Kubernetes cluster
+ You will learn microservices traffic management, mTLS security, and observability tools
 
 # 🎯 Objectives
-# ✔ Deploy Istio Service Mesh
-# ✔ Understand service mesh architecture
-# ✔ Configure traffic routing and load balancing
-# ✔ Implement Mutual TLS (mTLS)
-# ✔ Apply retries, circuit breakers, and fault injection
-# ✔ Monitor services using Grafana and Kiali
+ ✔ Deploy Istio Service Mesh
+ ✔ Understand service mesh architecture
+ ✔ Configure traffic routing and load balancing
+ ✔ Implement Mutual TLS (mTLS)
+ ✔ Apply retries, circuit breakers, and fault injection
+ ✔ Monitor services using Grafana and Kiali
 
 # 🧠 Prerequisites
-# Basic understanding of Kubernetes (Pods, Services, Deployments)
-# Familiarity with kubectl command-line tool
-# Knowledge of YAML configuration files
-# Understanding of microservices architecture
-# Basic networking concepts (HTTP, TLS, Load Balancing)
+ Basic understanding of Kubernetes (Pods, Services, Deployments)
+ Familiarity with kubectl command-line tool
+ Knowledge of YAML configuration files
+ Understanding of microservices architecture
+ Basic networking concepts (HTTP, TLS, Load Balancing)
 
 # 🏗️ Lab Architecture
-# User → Istio Gateway → VirtualService → Services (v1, v2, v3)
-# DestinationRule → Pods with Sidecar Proxy
+ User → Istio Gateway → VirtualService → Services (v1, v2, v3)
+ DestinationRule → Pods with Sidecar Proxy
 
 # ⚙️ Setup Instructions
 
 # Step 1: Install Istio
-# curl -L https://istio.io/downloadIstio | sh -
-# cd istio-*
-# export PATH=$PWD/bin:$PATH
-# istioctl version
+ curl -L https://istio.io/downloadIstio | sh -
+ cd istio-*
+ export PATH=$PWD/bin:$PATH
+ istioctl version
 
 # Step 2: Install Istio in Kubernetes
 # istioctl install --set values.defaultRevision=default
